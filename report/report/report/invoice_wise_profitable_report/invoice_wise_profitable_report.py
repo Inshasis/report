@@ -55,13 +55,13 @@ def get_columns(filters):
         },
         {
             "label": _("Cost of Inv"),
-            "fieldname": "cost_invoice",
+            "fieldname": "total_valuation_rate",
             "fieldtype": "Float",
             "width": 140
         },
         {
             "label": _("Gross/Profit or Loss"),
-            "fieldname": "gpl",
+            "fieldname": "gross_profit_or_loss",
             "fieldtype": "Float",
             "width": 140
         },
@@ -80,17 +80,25 @@ def get_columns(filters):
 def get_conditions(filters):
     conditions = ""
 
-    if filters.get("name"):conditions += " AND rv.name = %(name)s"
-    if filters.get("customer"):conditions += " AND rv.customer = %(customer)s"
+    if filters.get("name"):conditions += " AND si.name = %(name)s"
+    if filters.get("customer"):conditions += " AND si.customer = %(customer)s"
 
     return conditions, filters
 
 # Fetch data from the database using SQL query
 def get_data(conditions, filters):
     data = frappe.db.sql("""
-        SELECT rv.name, rv.customer,rv.posting_date, rv.total, rv.total_taxes_and_charges, rv.grand_total
-        FROM `tabSales Invoice` rv 
+        SELECT si.name, si.customer,si.posting_date, si.total, si.total_taxes_and_charges, si.grand_total,
+        COALESCE(SUM(item.valuation_rate * sii.qty), 0) as total_valuation_rate
+        FROM `tabSales Invoice` si 
+        LEFT JOIN `tabSales Invoice Item` sii ON sii.parent = si.name
+        LEFT JOIN `tabItem` item ON item.item_code = sii.item_code 
         WHERE 1=1 {conditions}
+        GROUP BY si.name, si.customer, si.posting_date, si.total, si.total_taxes_and_charges, si.grand_total
     """.format(conditions=conditions), filters, as_dict=1)
 
+    for row in data:
+        row['gross_profit_or_loss'] = row['grand_total'] - row['total_valuation_rate']
+
     return data
+    
