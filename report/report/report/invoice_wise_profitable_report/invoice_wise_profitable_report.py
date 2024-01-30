@@ -66,8 +66,8 @@ def get_columns(filters):
             "width": 140
         },
         {
-            "label": _("Per"),
-            "fieldname": "per",
+            "label": _("Percentage"),
+            "fieldname": "percentage",
             "fieldtype": "Data",
             "width": 140
         },
@@ -99,6 +99,9 @@ def get_data(conditions, filters):
 
     for row in data:
         row['gross_profit_or_loss'] = row['grand_total'] - row['total_valuation_rate']
+
+        per = row['grand_total'] - row['total_valuation_rate'] 
+        row['percentage'] = per / row['total_valuation_rate'] * 100
 
     return data
     
