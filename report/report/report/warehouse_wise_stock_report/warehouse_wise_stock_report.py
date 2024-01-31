@@ -21,10 +21,24 @@ def get_columns(filters):
             "fieldtype": "Link",
             "options": "Item",
             "width": 140
+        },
+        {
+            "label": _("Item Name"),
+            "fieldname": "item_name",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 140
+        },
+        {
+            "label": _("Item Group"),
+            "fieldname": "item_group",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 140
         }
     ]
 
-	# Get warehouse names dynamically and add them as columns
+    # Get warehouse names dynamically and add them as columns
     warehouse_names = get_warehouse_data(filters)
     columns.extend([
         {
@@ -35,17 +49,25 @@ def get_columns(filters):
         } for name in warehouse_names
     ])
 
-	# Add a column for total stock quantity
-    columns.append({
-        "label": _("Total Stock Qty"),
-        "fieldname": "total_stock_qty",
-        "fieldtype": "Float",
-        "width": 120
-    })
-    
+    # Add columns for valuation rate and total stock quantity
+    columns.extend([
+        {
+            "label": _("Valuation Rate (Finished Goods)"),
+            "fieldname": "valuation_rate_finished_goods",
+            "fieldtype": "Currency",
+            "hidden":1,
+            "width": 150
+        },
+        {
+            "label": _("Total Stock Qty"),
+            "fieldname": "total_stock_qty",
+            "fieldtype": "Float",
+            "width": 120
+        }
+    ])
+
     return columns
 
-# Build conditions based on filters
 def get_conditions(filters):
     conditions = ""
 
@@ -54,44 +76,63 @@ def get_conditions(filters):
 
     return conditions, filters
 
-# Fetch data from the database using SQL query
 def get_data(conditions, filters):
     data = frappe.db.sql("""
-        SELECT rv.item_code, rv.warehouse, SUM(rv.actual_qty) as actual_qty
+        SELECT 
+            rv.item_code,
+            i.item_name,
+            i.item_group,
+            rv.warehouse, 
+            SUM(rv.actual_qty) as actual_qty,
+            MAX(CASE WHEN rv.warehouse = 'Finished Goods - HI' THEN rv.valuation_rate END) as valuation_rate_finished_goods
         FROM `tabBin` rv 
         LEFT JOIN `tabWarehouse` rvi ON rvi.name = rv.warehouse 
+        LEFT JOIN `tabItem` i ON i.item_code = rv.item_code 
         WHERE 1=1 {conditions}
         GROUP BY rv.item_code, rv.warehouse
     """.format(conditions=conditions), filters, as_dict=1)
 
-	# Format the data for report rendering
     formatted_data = format_data(data)
-
+    frappe.msgprint(formatted_data)
     return formatted_data
 
-# Get warehouse names from the database
 def get_warehouse_data(filters):
     warehouse_names = frappe.db.sql_list("SELECT name FROM `tabWarehouse`")
     return warehouse_names
 
-# Format the data for better rendering
 def format_data(data):
     formatted_data = []
     total_stock_qty_dict = {}
+
     for row in data:
         item_code = row.get("item_code")
+        item_name = row.get("item_name")
+        item_group = row.get("item_group")
         warehouse = frappe.scrub(row.get("warehouse"))
         actual_qty = row.get("actual_qty")
+        valuation_rate_finished_goods = row.get("valuation_rate_finished_goods")
+
+        # Calculate total stock quantity
         total_stock_qty_dict[item_code] = total_stock_qty_dict.get(item_code, 0) + actual_qty
         total_stock_qty = total_stock_qty_dict.get(item_code, 0)
 
         existing_item = next((item for item in formatted_data if item["item_code"] == item_code), None)
 
         if existing_item:
+            existing_item[item_name] = item_name
+            existing_item[item_group] = item_group
             existing_item[warehouse] = actual_qty
             existing_item["total_stock_qty"] = total_stock_qty
+            existing_item["valuation_rate_finished_goods"] = valuation_rate_finished_goods
         else:
-            new_item = {"item_code": item_code, warehouse: actual_qty, "total_stock_qty": total_stock_qty}
+            new_item = {
+                "item_code": item_code,
+                "item_name": item_name,
+                "item_group": item_group,
+                warehouse: actual_qty,
+                "total_stock_qty": total_stock_qty,
+                "valuation_rate_finished_goods": valuation_rate_finished_goods
+            }
             formatted_data.append(new_item)
 
     return formatted_data
