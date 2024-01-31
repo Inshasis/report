@@ -92,16 +92,24 @@ def get_data(conditions, filters):
         COALESCE(SUM(item.valuation_rate * sii.qty), 0) as total_valuation_rate
         FROM `tabSales Invoice` si 
         LEFT JOIN `tabSales Invoice Item` sii ON sii.parent = si.name
-        LEFT JOIN `tabItem` item ON item.item_code = sii.item_code 
+        LEFT JOIN `tabBin` item ON item.item_code = sii.item_code and item.warehouse = "Finished Goods - HI"
         WHERE 1=1 {conditions}
         GROUP BY si.name, si.customer, si.posting_date, si.total, si.total_taxes_and_charges, si.grand_total
     """.format(conditions=conditions), filters, as_dict=1)
 
     for row in data:
-        row['gross_profit_or_loss'] = row['grand_total'] - row['total_valuation_rate']
+        if row['total_valuation_rate'] == 0:
+            row['gross_profit_or_loss'] = 0.0
+        else:
+            row['gross_profit_or_loss'] = row['grand_total'] - row['total_valuation_rate']
+            
 
-        per = row['grand_total'] - row['total_valuation_rate'] 
-        row['percentage'] = per / row['total_valuation_rate'] * 100
+        if row['total_valuation_rate'] == 0:
+            row['percentage'] = 0.0
+        else:
+            per = row['grand_total'] - row['total_valuation_rate']  
+            row['percentage'] = per / row['total_valuation_rate'] * 100
+            
 
     return data
     
