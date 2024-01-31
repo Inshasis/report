@@ -10,5 +10,11 @@ frappe.query_reports["Warehouse Wise Stock Report"] = {
 			"fieldtype":"Link", // Type of the field (Link field, in this case)
 			"options":"Item", // Options for the Link field (referencing the "Item" doctype)
 		},
+		{
+			"fieldname":"warehouse",
+			"label":("Warehouse"), // Displayed label for the filter
+			"fieldtype":"Link", // Type of the field (Link field, in this case)
+			"options":"Warehouse", // Options for the Link field (referencing the "Item" doctype)
+		},
 	]
 };

@@ -1,5 +1,5 @@
-# Copyright (c) 2024, Huda Infotech and contributors
-# For license information, please see license.txt
+# # Copyright (c) 2024, Huda Infotech and contributors
+# # For license information, please see license.txt
 
 from __future__ import unicode_literals
 import frappe
@@ -12,7 +12,6 @@ def execute(filters=None):
 
     return columns, data
 
-# Define columns for the report
 def get_columns(filters):
     columns = [
         {
@@ -40,13 +39,14 @@ def get_columns(filters):
 
     # Get warehouse names dynamically and add them as columns
     warehouse_names = get_warehouse_data(filters)
+
     columns.extend([
         {
-            "label": _(name),
-            "fieldname": frappe.scrub(name),
+            "label": _(warehouse["name"]),  # Use a specific field from the warehouse data
+            "fieldname": frappe.scrub(warehouse["name"]),  # Use a specific field from the warehouse data
             "fieldtype": "Float",
             "width": 120
-        } for name in warehouse_names
+        } for warehouse in warehouse_names
     ])
 
     # Add columns for valuation rate and total stock quantity
@@ -55,7 +55,6 @@ def get_columns(filters):
             "label": _("Valuation Rate (Finished Goods)"),
             "fieldname": "valuation_rate_finished_goods",
             "fieldtype": "Currency",
-            "hidden":1,
             "width": 150
         },
         {
@@ -84,21 +83,34 @@ def get_data(conditions, filters):
             i.item_group,
             rv.warehouse, 
             SUM(rv.actual_qty) as actual_qty,
-            MAX(CASE WHEN rv.warehouse = 'Finished Goods - HI' THEN rv.valuation_rate END) as valuation_rate_finished_goods
+            item.valuation_rate as valuation_rate_finished_goods
         FROM `tabBin` rv 
         LEFT JOIN `tabWarehouse` rvi ON rvi.name = rv.warehouse 
-        LEFT JOIN `tabItem` i ON i.item_code = rv.item_code 
+        LEFT JOIN `tabItem` i ON i.item_code = rv.item_code
+        LEFT JOIN `tabBin` item ON item.item_code = rv.item_code and item.warehouse = "Finished Goods - HI" 
         WHERE 1=1 {conditions}
         GROUP BY rv.item_code, rv.warehouse
     """.format(conditions=conditions), filters, as_dict=1)
 
     formatted_data = format_data(data)
-    frappe.msgprint(formatted_data)
+    
     return formatted_data
 
+# Define the function to fetch warehouse data based on filters
 def get_warehouse_data(filters):
-    warehouse_names = frappe.db.sql_list("SELECT name FROM `tabWarehouse`")
-    return warehouse_names
+    conditions = ""
+    if filters.get("warehouse"):
+        conditions += " AND w.name = %(warehouse)s"
+    
+    warehouse_data = frappe.db.sql(f"""
+        SELECT 
+            *
+        FROM `tabWarehouse` w
+        WHERE 1=1 {conditions}
+    """, filters, as_dict=True)
+
+    return warehouse_data
+
 
 def format_data(data):
     formatted_data = []
@@ -123,7 +135,7 @@ def format_data(data):
             existing_item[item_group] = item_group
             existing_item[warehouse] = actual_qty
             existing_item["total_stock_qty"] = total_stock_qty
-            existing_item["valuation_rate_finished_goods"] = valuation_rate_finished_goods
+            existing_item["valuation_rate_finished_goods"] = valuation_rate_finished_goods 
         else:
             new_item = {
                 "item_code": item_code,
