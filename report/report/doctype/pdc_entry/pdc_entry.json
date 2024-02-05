@@ -1,0 +1,221 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-02-05 14:06:26.652042",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pdc_type",
+  "column_break_abc6o",
+  "posting_date",
+  "mode_of_payment",
+  "invoice_details_section",
+  "invoice",
+  "payment_from__to_section",
+  "party",
+  "column_break_josun",
+  "party_name",
+  "accounts_section",
+  "account_paid_from",
+  "paid_from_account_currency",
+  "column_break_flnvr",
+  "account_paid_to",
+  "paid_to_account_currency",
+  "amount_section",
+  "paid_amount",
+  "transaction_id_section",
+  "reference_no",
+  "payment_entry_reference",
+  "column_break_dn9wa",
+  "reference_date",
+  "clearance_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "Receive",
+   "fieldname": "pdc_type",
+   "fieldtype": "Select",
+   "label": "PDC Type",
+   "options": "\nPay\nReceive"
+  },
+  {
+   "fieldname": "column_break_abc6o",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "default": "Cheque",
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "PDC Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "invoice_details_section",
+   "fieldtype": "Section Break",
+   "label": "Invoice Details"
+  },
+  {
+   "fieldname": "invoice",
+   "fieldtype": "Link",
+   "label": "Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "payment_from__to_section",
+   "fieldtype": "Section Break",
+   "label": "Payment From / To"
+  },
+  {
+   "fetch_from": "invoice.customer",
+   "fieldname": "party",
+   "fieldtype": "Link",
+   "label": "Party",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_josun",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "label": "Party Name"
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "fieldname": "account_paid_from",
+   "fieldtype": "Link",
+   "label": "Account Paid From",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "paid_from_account_currency",
+   "fieldtype": "Link",
+   "label": "Account Currency (From)",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_flnvr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "account_paid_to",
+   "fieldtype": "Link",
+   "label": "Account Paid To",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "paid_to_account_currency",
+   "fieldtype": "Link",
+   "label": "Account Currency (To)",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount_section",
+   "fieldtype": "Section Break",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "options": "paid_from_account_currency"
+  },
+  {
+   "fieldname": "transaction_id_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction ID"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Cheque/Reference No"
+  },
+  {
+   "fieldname": "column_break_dn9wa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_date",
+   "fieldtype": "Date",
+   "label": "Cheque/Reference Date"
+  },
+  {
+   "fieldname": "clearance_date",
+   "fieldtype": "Date",
+   "label": "Clearance Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "PDC Entry",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "payment_entry_reference",
+   "fieldtype": "Link",
+   "label": "Payment Entry Reference",
+   "options": "Payment Entry",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-02-05 16:56:44.074027",
+ "modified_by": "Administrator",
+ "module": "Report",
+ "name": "PDC Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
