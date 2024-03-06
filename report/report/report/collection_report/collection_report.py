@@ -55,7 +55,7 @@ def get_data(conditions,filters):
         LEFT JOIN `tabSales Invoice Item` sii ON sii.parent = si.name
         LEFT JOIN `tabCustomer` c ON si.customer = c.name
         LEFT JOIN `tabCustomer Credit Limit` ccl ON c.name = ccl.parent
-        WHERE 1=1 {conditions}
+        WHERE 1=1 AND si.status != "Paid" {conditions}
         GROUP BY si.customer;
 
     """.format(conditions=conditions), filters, as_dict=1)
