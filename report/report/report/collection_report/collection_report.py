@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.utils import getdate
+from frappe.utils.data import flt
 
 # Function to fetch data for the report
 def execute(filters=None):
@@ -60,10 +61,10 @@ def get_data(conditions,filters):
     """.format(conditions=conditions), filters, as_dict=1)
     for row in data:
         row['credit_limit_date'] = "30 Days"
-        row['total_due'] = row['used_credit_limit']
-        acl = row['credit_limit'] - row['used_credit_limit']
+        row['total_due'] = flt(row['used_credit_limit'])
+        acl = flt(row['credit_limit']) - flt(row['used_credit_limit'])
         if acl >= 0.0:
-            row['available_credit_limit'] = acl
+            row['available_credit_limit'] = flt(acl)
         else:
             row['available_credit_limit'] = 0.0
                   
