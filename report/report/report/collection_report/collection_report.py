@@ -36,6 +36,7 @@ def get_conditions(filters):
     conditions = ""
 
     if filters.get("customer"):conditions += " AND si.customer = %(customer)s"
+    if filters.get("status"):conditions += " AND si.status = %(status)s"
 
     return conditions, filters
 # Fetch data for the report
@@ -55,7 +56,8 @@ def get_data(conditions,filters):
         LEFT JOIN `tabSales Invoice Item` sii ON sii.parent = si.name
         LEFT JOIN `tabCustomer` c ON si.customer = c.name
         LEFT JOIN `tabCustomer Credit Limit` ccl ON c.name = ccl.parent
-        WHERE 1=1 AND si.status != "Paid" {conditions}
+        WHERE 1=1 AND si.status IN ('Partly Paid', 'Unpaid', 'Unpaid and Discounted', 'Partly Paid and Discounted', 'Overdue and Discounted', 'Overdue')
+            {conditions}
         GROUP BY si.customer;
 
     """.format(conditions=conditions), filters, as_dict=1)

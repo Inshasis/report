@@ -6,9 +6,15 @@ frappe.query_reports["Collection Report"] = {
 	"filters": [
 		{
 			"fieldname":"customer",
-			"label":("Customer"), // Displayed label for the filter
-			"fieldtype":"Link", // Type of the field (Link field, in this case)
-			"options":"Customer", // Options for the Link field (referencing the "Item" doctype)
+			"label":("Customer"), 
+			"fieldtype":"Link", 
+			"options":"Customer", 
+		},
+		{
+			"fieldtype": 'Select',
+			"fieldname": 'status',
+			"label":('Status'),
+			"options": ['', 'Partly Paid', 'Unpaid', 'Unpaid and Discounted', 'Partly Paid and Discounted', 'Overdue and Discounted', 'Overdue']
 		},
 	]
 };
