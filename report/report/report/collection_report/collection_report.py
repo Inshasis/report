@@ -37,6 +37,7 @@ def get_conditions(filters):
 
     if filters.get("customer"):conditions += " AND si.customer = %(customer)s"
     if filters.get("status"):conditions += " AND si.status = %(status)s"
+    if filters.get("warehouse"):conditions += "AND si.set_warehouse in %(warehouse)s"
 
     return conditions, filters
 # Fetch data for the report
