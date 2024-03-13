@@ -17,6 +17,7 @@ def execute(filters=None):
 def get_columns(filters):
     columns = [
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Link", "options": "Customer"},
+        {"label": "Customer Name", "fieldname": "customer_name", "fieldtype": "Data","width": 150},
         {"label": "Credit Limit", "fieldname": "credit_limit", "fieldtype": "Currency"},
         {"label": "Credit Limit Date", "fieldname": "credit_limit_date", "fieldtype": "Data"},
         {"label": "Used Credit Limit", "fieldname": "used_credit_limit", "fieldtype": "Currency"},
@@ -45,6 +46,7 @@ def get_data(conditions,filters):
     data = frappe.db.sql("""
         SELECT 
             si.customer,
+            c.customer_name,
             ccl.credit_limit,
             SUM(si.outstanding_amount) as used_credit_limit,
             SUM(CASE WHEN DATEDIFF(CURDATE(), si.due_date) BETWEEN 0 AND 30 THEN si.outstanding_amount ELSE 0 END) AS `0-30 days`,
