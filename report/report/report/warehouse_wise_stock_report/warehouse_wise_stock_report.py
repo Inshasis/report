@@ -100,7 +100,7 @@ def get_data(conditions, filters):
 def get_warehouse_data(filters):
     conditions = ""
     if filters.get("warehouse"):
-        conditions += " AND w.name = %(warehouse)s"
+        conditions += " AND w.name in %(warehouse)s"
     
     warehouse_data = frappe.db.sql(f"""
         SELECT 
