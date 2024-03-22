@@ -7,8 +7,12 @@ frappe.query_reports["Collection Report"] = {
 		{
 			"fieldname":"customer",
 			"label":("Customer"), 
-			"fieldtype":"Link", 
-			"options":"Customer", 
+			"fieldtype": "MultiSelectList",
+			get_data: function(txt) {
+				return frappe.db.get_link_options('Customer', txt, {
+					
+				});
+			} 
 		},
 		{
 			"fieldtype": 'Select',
@@ -26,5 +30,17 @@ frappe.query_reports["Collection Report"] = {
 				});
 			}
 		},
+		{
+			"fieldname":"sales_person",
+			"label": __("Sales Person"),
+			"fieldtype": "MultiSelectList",
+			get_data: function(txt) {
+				return frappe.db.get_link_options('Sales Partner', txt, {
+					
+				});
+			}
+		},
 	]
 };
+
+// is_group:0

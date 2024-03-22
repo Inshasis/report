@@ -18,6 +18,7 @@ def get_columns(filters):
     columns = [
         {"label": "Customer", "fieldname": "customer", "fieldtype": "Link", "options": "Customer"},
         {"label": "Customer Name", "fieldname": "customer_name", "fieldtype": "Data","width": 150},
+        {"label": "Closing Balance", "fieldname": "customer_balance", "fieldtype": "Data","width": 150},
         {"label": "Credit Limit", "fieldname": "credit_limit", "fieldtype": "Currency"},
         {"label": "Credit Limit Date", "fieldname": "credit_limit_date", "fieldtype": "Data"},
         {"label": "Used Credit Limit", "fieldname": "used_credit_limit", "fieldtype": "Currency"},
@@ -36,17 +37,20 @@ def get_columns(filters):
 def get_conditions(filters):
     conditions = ""
 
-    if filters.get("customer"):conditions += " AND si.customer = %(customer)s"
+    if filters.get("customer"):conditions += " AND si.customer in %(customer)s"
     if filters.get("status"):conditions += " AND si.status = %(status)s"
     if filters.get("warehouse"):conditions += "AND si.set_warehouse in %(warehouse)s"
+    if filters.get("sales_person"):conditions += "AND sp.name in %(sales_person)s"
 
     return conditions, filters
+
 # Fetch data for the report
-def get_data(conditions,filters):
+def get_data(conditions, filters):
     data = frappe.db.sql("""
         SELECT 
             si.customer,
             c.customer_name,
+            SUM(si.base_grand_total - si.base_total_taxes_and_charges) as customer_balance,
             ccl.credit_limit,
             SUM(si.outstanding_amount) as used_credit_limit,
             SUM(CASE WHEN DATEDIFF(CURDATE(), si.due_date) BETWEEN 0 AND 30 THEN si.outstanding_amount ELSE 0 END) AS `0-30 days`,
@@ -56,14 +60,15 @@ def get_data(conditions,filters):
             SUM(CASE WHEN DATEDIFF(CURDATE(), si.due_date) BETWEEN 121 AND 360 THEN si.outstanding_amount ELSE 0 END) AS `120-360 days`,
             SUM(CASE WHEN DATEDIFF(CURDATE(), si.due_date) > 360 THEN si.outstanding_amount ELSE 0 END) AS `above days`
         FROM `tabSales Invoice` si 
-        LEFT JOIN `tabSales Invoice Item` sii ON sii.parent = si.name
         LEFT JOIN `tabCustomer` c ON si.customer = c.name
         LEFT JOIN `tabCustomer Credit Limit` ccl ON c.name = ccl.parent
-        WHERE 1=1 AND si.status IN ('Partly Paid', 'Unpaid', 'Unpaid and Discounted', 'Partly Paid and Discounted', 'Overdue and Discounted', 'Overdue')
+        LEFT JOIN `tabSales Partner` sp ON sp.name = si.sales_partner
+        WHERE si.docstatus = 1 AND si.status IN ('Partly Paid', 'Unpaid', 'Unpaid and Discounted', 'Partly Paid and Discounted', 'Overdue and Discounted', 'Overdue')
             {conditions}
         GROUP BY si.customer;
 
     """.format(conditions=conditions), filters, as_dict=1)
+    
     for row in data:
         row['credit_limit_date'] = "30 Days"
         row['total_due'] = flt(row['used_credit_limit'])
