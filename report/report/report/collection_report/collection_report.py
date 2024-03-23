@@ -50,7 +50,8 @@ def get_data(conditions, filters):
         SELECT 
             si.customer,
             c.customer_name,
-            SUM(gle.debit - gle.credit) as customer_balance,
+            SUM(gle.debit) as debit,
+            SUM(gle.credit) as credit,
             ccl.credit_limit,
             SUM(si.outstanding_amount) as used_credit_limit,
             SUM(CASE WHEN DATEDIFF(CURDATE(), si.due_date) BETWEEN 0 AND 30 THEN si.outstanding_amount ELSE 0 END) AS `0-30 days`,
@@ -73,10 +74,12 @@ def get_data(conditions, filters):
     for row in data:
         row['credit_limit_date'] = "30 Days"
         row['total_due'] = flt(row['used_credit_limit'])
+        row['customer_balance'] = flt(row['debit']) - flt(row['credit'])
         acl = flt(row['credit_limit']) - flt(row['used_credit_limit'])
         if acl >= 0.0:
             row['available_credit_limit'] = flt(acl)
         else:
             row['available_credit_limit'] = 0.0
-                  
+    
+    
     return data
