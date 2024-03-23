@@ -50,7 +50,7 @@ def get_data(conditions, filters):
         SELECT 
             si.customer,
             c.customer_name,
-            SUM(si.base_grand_total - si.base_total_taxes_and_charges) as customer_balance,
+            SUM(gle.debit - gle.credit) as customer_balance,
             ccl.credit_limit,
             SUM(si.outstanding_amount) as used_credit_limit,
             SUM(CASE WHEN DATEDIFF(CURDATE(), si.due_date) BETWEEN 0 AND 30 THEN si.outstanding_amount ELSE 0 END) AS `0-30 days`,
@@ -63,6 +63,7 @@ def get_data(conditions, filters):
         LEFT JOIN `tabCustomer` c ON si.customer = c.name
         LEFT JOIN `tabCustomer Credit Limit` ccl ON c.name = ccl.parent
         LEFT JOIN `tabSales Partner` sp ON sp.name = si.sales_partner
+        LEFT JOIN `tabGL Entry` gle ON gle.party = si.customer and gle.against_voucher_type = "Sales Invoice" and gle.against_voucher = si.name
         WHERE si.docstatus = 1 AND si.status IN ('Partly Paid', 'Unpaid', 'Unpaid and Discounted', 'Partly Paid and Discounted', 'Overdue and Discounted', 'Overdue')
             {conditions}
         GROUP BY si.customer;
