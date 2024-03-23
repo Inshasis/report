@@ -92,28 +92,41 @@ def get_conditions(filters):
 # Fetch data from the database using SQL query
 def get_data(conditions, filters):
     data = frappe.db.sql("""
-        SELECT si.name, si.customer,si.posting_date, si.total, si.total_taxes_and_charges, si.grand_total,
+        SELECT si.name, si.customer,si.customer_name,si.posting_date, si.total, si.total_taxes_and_charges, si.grand_total,
         COALESCE(SUM(item.valuation_rate * sii.qty), 0) as total_valuation_rate
         FROM `tabSales Invoice` si 
         LEFT JOIN `tabSales Invoice Item` sii ON sii.parent = si.name
-        LEFT JOIN `tabBin` item ON item.item_code = sii.item_code and item.warehouse = "Finished Goods - HI"
+        LEFT JOIN `tabBin` item ON item.item_code = sii.item_code and item.warehouse = "1-Muscat Store 1 - A"
         WHERE 1=1 {conditions}
-        GROUP BY si.name, si.customer, si.posting_date, si.total, si.total_taxes_and_charges, si.grand_total
+        GROUP BY si.name, si.customer, si.posting_date, si.total, si.total_taxes_and_charges, si.total
     """.format(conditions=conditions), filters, as_dict=1)
 
     for row in data:
         if row['total_valuation_rate'] == 0:
             row['gross_profit_or_loss'] = 0.0
         else:
-            row['gross_profit_or_loss'] = row['grand_total'] - row['total_valuation_rate']
+            row['gross_profit_or_loss'] = row['total'] - row['total_valuation_rate']
             
 
         if row['total_valuation_rate'] == 0:
             row['percentage'] = 0.0
         else:
-            per = row['grand_total'] - row['total_valuation_rate']  
+            per = row['total'] - row['total_valuation_rate'] 
             row['percentage'] = per / row['total_valuation_rate'] * 100
-            
+    
+    total_data = {
+        'name': 'Total',
+        'customer': '',
+        'posting_date': '',
+        'total': sum(row['total'] for row in data),
+        'total_taxes_and_charges': sum(row['total_taxes_and_charges'] for row in data),
+        'grand_total': sum(row['grand_total'] for row in data),
+        'total_valuation_rate': sum(row['total_valuation_rate'] for row in data),
+        'gross_profit_or_loss': sum(row['gross_profit_or_loss'] for row in data),
+        'percentage': sum(row['percentage'] for row in data) / len(data) if data else 0  # Average percentage
+    }
+    
+    # Append the total row to the data
+    data.append(total_data)        
 
     return data
-    
