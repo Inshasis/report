@@ -110,6 +110,7 @@
    "label": "Accounts"
   },
   {
+   "default": "Debtors - A",
    "fieldname": "account_paid_from",
    "fieldtype": "Link",
    "label": "Account Paid From",
@@ -160,7 +161,8 @@
   {
    "fieldname": "reference_no",
    "fieldtype": "Data",
-   "label": "Cheque/Reference No"
+   "label": "Cheque/Reference No",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_dn9wa",
@@ -169,7 +171,8 @@
   {
    "fieldname": "reference_date",
    "fieldtype": "Date",
-   "label": "Cheque/Reference Date"
+   "label": "Cheque/Reference Date",
+   "reqd": 1
   },
   {
    "allow_on_submit": 1,
@@ -199,7 +202,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-26 01:31:39.803952",
+ "modified": "2024-03-28 15:50:10.302870",
  "modified_by": "Administrator",
  "module": "Report",
  "name": "PDC Entry",

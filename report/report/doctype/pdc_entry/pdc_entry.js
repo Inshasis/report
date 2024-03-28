@@ -3,7 +3,7 @@
 
 frappe.ui.form.on('PDC Entry', {
 	refresh: function (frm) {
-		if (cur_frm.doc.docstatus === 1) {
+		if (cur_frm.doc.docstatus === 1 && !cur_frm.doc.payment_entry_reference) {
 			frm.add_custom_button(__("Payment Deposit"), () => {
 				const dialog = frappe.prompt([
 					{
