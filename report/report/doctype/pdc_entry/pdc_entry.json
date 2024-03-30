@@ -8,12 +8,12 @@
  "engine": "InnoDB",
  "field_order": [
   "pdc_type",
+  "company",
   "column_break_abc6o",
   "posting_date",
   "mode_of_payment",
-  "invoice_details_section",
-  "invoice",
   "payment_from__to_section",
+  "party_type",
   "party",
   "column_break_josun",
   "party_name",
@@ -23,9 +23,14 @@
   "column_break_flnvr",
   "account_paid_to",
   "paid_to_account_currency",
+  "cost_center",
   "amount_section",
   "paid_amount",
+  "pdc_entry_reference_section",
+  "get_data",
+  "pdc_entry_reference",
   "transaction_id_section",
+  "bank_name",
   "reference_no",
   "payment_entry_reference",
   "column_break_dn9wa",
@@ -72,17 +77,6 @@
    "search_index": 1
   },
   {
-   "fieldname": "invoice_details_section",
-   "fieldtype": "Section Break",
-   "label": "Invoice Details"
-  },
-  {
-   "fieldname": "invoice",
-   "fieldtype": "Link",
-   "label": "Invoice",
-   "options": "Sales Invoice"
-  },
-  {
    "fieldname": "payment_from__to_section",
    "fieldtype": "Section Break",
    "label": "Payment From / To"
@@ -90,9 +84,9 @@
   {
    "fetch_from": "invoice.customer",
    "fieldname": "party",
-   "fieldtype": "Link",
+   "fieldtype": "Dynamic Link",
    "label": "Party",
-   "options": "Customer"
+   "options": "party_type"
   },
   {
    "fieldname": "column_break_josun",
@@ -110,7 +104,6 @@
    "label": "Accounts"
   },
   {
-   "default": "Debtors - A",
    "fieldname": "account_paid_from",
    "fieldtype": "Link",
    "label": "Account Paid From",
@@ -197,12 +190,55 @@
    "label": "Payment Entry Reference",
    "options": "Payment Entry",
    "read_only": 1
+  },
+  {
+   "fieldname": "pdc_entry_reference_section",
+   "fieldtype": "Section Break",
+   "label": "PDC Entry Reference"
+  },
+  {
+   "fieldname": "pdc_entry_reference",
+   "fieldtype": "Table",
+   "label": "PDC Entry Reference",
+   "options": "PDC Entry Reference"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Link",
+   "label": "Bank Name",
+   "options": "Bank",
+   "reqd": 1
+  },
+  {
+   "default": "ABTL",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "default": "Main - A",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "get_data",
+   "fieldtype": "Button",
+   "label": "Get Data"
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Link",
+   "label": "Party Type",
+   "options": "DocType"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-28 15:50:10.302870",
+ "modified": "2024-03-31 01:23:43.974081",
  "modified_by": "Administrator",
  "module": "Report",
  "name": "PDC Entry",
