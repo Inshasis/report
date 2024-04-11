@@ -49,7 +49,8 @@ frappe.ui.form.on('PDC Entry', {
 				frappe.call({
 					method: "report.report.doctype.pdc_entry.pdc_entry.get_reference_docs",
 					args: {
-						args: cur_frm.doc,
+						party_type: frm.doc.party_type,
+						party: frm.doc.party,
 						party_account: cur_frm.doc.pdc_type=="Receive" ? cur_frm.doc.account_paid_from : cur_frm.doc.account_paid_to,
 					},
 					callback: function (r) {

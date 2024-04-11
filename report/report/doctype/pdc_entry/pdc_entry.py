@@ -2,16 +2,10 @@
 # For license information, please see license.txt
 
 import json
-from erpnext.accounts.doctype.account.account import get_account_currency
-from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import get_dimensions
 from erpnext.accounts.utils import get_outstanding_invoices
-from erpnext.controllers.accounts_controller import get_supplier_block_status
 import frappe
-from frappe import ValidationError, _, qb, scrub, throw
 from frappe.model.document import Document
-from frappe.utils.data import flt, getdate, nowdate
-from pydantic import NoneStrBytes
-from frappe import _, scrub
+from frappe.utils.data import flt
 
 class PDCEntry(Document):
 	def on_cancel(self):
@@ -27,25 +21,17 @@ class PDCEntry(Document):
 @frappe.whitelist()
 def make_pdc_entry_on_submit(doc):
 	args = json.loads(doc)
-	# party_type = ""
-	# invoice_type = ""
-	# if args.get("pdc_type") == "Receive":
-	# 	party_type = "Customer"
-	# 	invoice_type = "Sales Invoice"
-	# else:
-	# 	party_type = "Supplier"
-	# 	invoice_type = "Purchase Invoice"
 	if args.get("clearance_date"):
-		# invoice = frappe.get_doc(invoice_type,args.get("invoice"))
 		p_entry = frappe.new_doc("Payment Entry")
-		# for i in args.get("accounting:
-		p_entry.append("references", {
-			'reference_doctype': args.get("reference_doctype"),
-			'reference_name': args.get("reference_name"),
-			"total_amount": flt(args.get("total_amount")),
-			"outstanding_amount":flt(args.get("outstanding_amount")),
-			"allocated_amount":flt(args.get("allocated_amount"))
-		})
+		for item in args.get("pdc_entry_reference"):
+			p_entry.append("references", {
+				'reference_doctype': item['reference_doctype'],
+				'reference_name': item['reference_name'],
+				"total_amount": flt(item['total_amount']),
+				"outstanding_amount":flt(item['outstanding_amount']),
+				"allocated_amount":flt(item['allocated_amount'])
+			})
+
 		p_entry.payment_type = args.get("pdc_type")
 		p_entry.posting_date = args.get("posting_date")
 		p_entry.mode_of_payment = args.get("mode_of_payment")
@@ -74,17 +60,10 @@ def make_pdc_entry_on_submit(doc):
 
 
 @frappe.whitelist()
-def get_reference_docs(args,party_account):
-	args = json.loads(args)
-	party_type = ""
-	if args.get("pdc_type") == "Receive":
-		party_type = "Customer"
-	else:
-		party_type = "Supplier"
-
+def get_reference_docs(party_type, party, party_account):
 	outstanding_invoices = get_outstanding_invoices(
 		party_type,
-		args.get("party"),
+		party,
 		party_account
 	)
 	return outstanding_invoices
